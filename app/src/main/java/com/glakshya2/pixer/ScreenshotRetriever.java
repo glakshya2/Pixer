@@ -16,10 +16,12 @@ import java.io.File;
 
 public class ScreenshotRetriever extends Activity {
 
+    private static final int READ_EXTERNAL_STORAGE_REQUEST_CODE = 123;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i("Main Activity", "New Screenshot Retriever");
+        Log.i("ScreenshotRetriever", "New ScreenshotRetriever");
         checkPermission();
         retrieveScreenshot();
     }
@@ -27,36 +29,45 @@ public class ScreenshotRetriever extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        // Close ScreenshotRetriever
+        Log.i("ScreenshotRetriever", "Closing ScreenshotRetriever Activity");
         finish();
     }
-    private static final int READ_EXTERNAL_STORAGE_REQUEST_CODE = 123;
-    public void checkPermission(){
-        if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, READ_EXTERNAL_STORAGE_REQUEST_CODE );
+
+    public void checkPermission() {
+        // Check for reading storage permission
+        Log.i("ScreenshotRetriever", "Check for storage read permission");
+        if (ContextCompat.checkSelfPermission(getApplicationContext(),
+                Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            // Request for permission to read storage
+            Log.i("ScreenshotRetriever", "Request storage read permission");
+            ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.READ_EXTERNAL_STORAGE },
+                    READ_EXTERNAL_STORAGE_REQUEST_CODE);
         }
     }
 
     public void retrieveScreenshot() {
-        Log.i("Main Activity", "Looking for screenshot");
-            Uri latestUri = null;
-            long latestDate = 0;
-            String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Screenshots/";
-            Log.i("Main Activity", "Step 1");
-            File directory = new File(path);
-            File[] files = directory.listFiles();
-            Log.i("Main Activity", Integer.toString(files.length));
-            for (File file : files) {
-                if (file.lastModified() > latestDate) {
-                    latestUri = Uri.fromFile(file);
-                    latestDate = file.lastModified();
-                    Log.i("Main Activity", "Found another");
-                }
+        // Retrieve Screenshot
+        Log.i("ScreenshotRetriever", "Looking for screenshot");
+        Uri latestUri = null;
+        long latestDate = 0;
+        // Import screenshot directory
+        String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Screenshots/";
+        File directory = new File(path);
+        File[] files = directory.listFiles();
+        Log.i("ScreenshotRetriever", "No. of screenshots in directory = " + files.length);
+        // Loop to find latest screenshot
+        for (File file : files) {
+            if (file.lastModified() > latestDate) {
+                latestUri = Uri.fromFile(file);
+                latestDate = file.lastModified();
             }
-            Intent intent = new Intent(ScreenshotRetriever.this, TextExtractor.class);
-            intent.setData(latestUri);
-            startActivity(intent);
         }
 
-
+        // Create intent to move to TextExtractor Class
+        Log.i("ScreenshotRetriever", "Creating intent to move to TextExtractor");
+        Intent intent = new Intent(ScreenshotRetriever.this, TextExtractor.class);
+        intent.setData(latestUri);
+        startActivity(intent);
+    }
 }
-
