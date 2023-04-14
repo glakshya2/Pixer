@@ -28,23 +28,23 @@ public class ScreenshotService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.i("ScreenshotService", "New ScreenshotService");
+        Log.i("MainActivity", "New ScreenshotService");
         // Create new ScreenshotObserver to detect change in screenshot directory
         contentObserver = new ScreenshotObserver();
         // Register ScreenshotObserver
-        Log.i("ScreenshotService", "Registering ScreenshotObserver");
+        Log.i("MainActivity", "Registering ScreenshotObserver");
         getContentResolver().registerContentObserver(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                 true,
                 contentObserver);
-        Log.i("ScreenshotService", "ScreenshotObserver Registered");
+        Log.i("MainActivity", "ScreenshotObserver Registered");
         // Create a notification Channel
         createNotificationChannel();
-        Log.i("ScreenshotService", "Notification Channel Created");
+        Log.i("MainActivity", "Notification Channel Created");
     }
 
     private void createNotificationChannel() {
-        Log.i("ScreenshotService", "Creating Notification Channel");
+        Log.i("MainActivity", "Creating Notification Channel");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
                     "default",
@@ -67,7 +67,7 @@ public class ScreenshotService extends Service {
         // Unregister ScreenshotObserver
         getContentResolver().unregisterContentObserver(contentObserver);
         // CLosing ScreenshotService
-        Log.i("ScreenshotService", "Closing ScreenshotService");
+        Log.i("MainActivity", "Closing ScreenshotService");
     }
 
     @Override
@@ -86,13 +86,13 @@ public class ScreenshotService extends Service {
         @Override
         public void onChange(boolean selfChange, Uri uri) {
             super.onChange(selfChange, uri);
-            Log.i("ScreenshotService", "screenshot detected");
+            Log.i("MainActivity", "screenshot detected");
             // Check if change detected was in Screenshot Directory
             if (uri.toString().matches(MediaStore.Images.Media.EXTERNAL_CONTENT_URI.toString() + "/\\d+")) {
                 // Send notification if detected change was in Screenshot Directory
-                Log.i("ScreenshotService", "Sending Notification");
+                Log.i("MainActivity", "Sending Notification");
                 // Creating intent for notification to open ScreenshotRetriever
-                Log.i("ScreenshotService", "Creating Intent");
+                Log.i("MainActivity", "Creating Intent");
                 Intent intent = new Intent(getApplicationContext(), ScreenshotRetriever.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent,
@@ -105,16 +105,16 @@ public class ScreenshotService extends Service {
                         .setAutoCancel(true);
                 NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
                 // Check for notification permission
-                Log.i("ScreenshotService", "Checking for notification permission");
+                Log.i("MainActivity", "Checking for notification permission");
                 if (ContextCompat.checkSelfPermission(getApplicationContext(),
                         Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                     // Request for notification Permission
-                    Log.i("ScreenshotService", "Requesting notification permission");
+                    Log.i("MainActivity", "Requesting notification permission");
                     ActivityCompat.requestPermissions((Activity) getApplicationContext(),
                             new String[] { Manifest.permission.POST_NOTIFICATIONS }, PERMISSIONS_REQUEST_NOTIFICATION);
                 }
                 notificationManager.notify(0, builder.build());
-                Log.i("ScreenshotService", "Notification Sent");
+                Log.i("MainActivity", "Notification Sent");
             }
 
         }

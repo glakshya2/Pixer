@@ -32,10 +32,13 @@
 
         <activity android:name=".ScreenshotRetriever"
             android:parentActivityName=".ScreenshotService"/>
-        <activity android:name=".TextExtractor"
+        <activity android:name=".ObjectDetect"
             android:parentActivityName=".ScreenshotRetriever"/>
+        <activity android:name=".ImageLabelling"
+            android:parentActivityName=".ObjectDetect"/>
+
         <activity android:name=".SpeakText"
-            android:parentActivityName=".TextExtractor"/>
+            android:parentActivityName=".ObjectDetect"/>
     </application>
 
     <queries>
