@@ -66,7 +66,7 @@ public class ScreenshotRetriever extends Activity {
 
         // Create intent to move to TextExtractor Class
         Log.i("MainActivity", "Creating intent to move to TextExtractor");
-        Intent intent = new Intent(ScreenshotRetriever.this, ObjectDetect.class);
+        Intent intent = new Intent(ScreenshotRetriever.this, ImageLabelling.class);
         intent.setData(latestUri);
         startActivity(intent);
     }

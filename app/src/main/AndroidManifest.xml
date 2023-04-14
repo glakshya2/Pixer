@@ -38,7 +38,7 @@
             android:parentActivityName=".ObjectDetect"/>
 
         <activity android:name=".SpeakText"
-            android:parentActivityName=".ObjectDetect"/>
+            android:parentActivityName=".ImageLabelling"/>
     </application>
 
     <queries>

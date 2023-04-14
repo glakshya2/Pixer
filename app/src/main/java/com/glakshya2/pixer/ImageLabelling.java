@@ -33,6 +33,7 @@ public class ImageLabelling extends Activity {
     @Override
     protected void onCreate(Bundle savedInstance) {
         super.onCreate(savedInstance);
+        Log.i("MainActivity", "New ImageLabelling");
         labeler = ImageLabeling.getClient(new ImageLabelerOptions.Builder().setConfidenceThreshold(0.7f).build());
         detectedRects = getIntent().getParcelableArrayListExtra("RectList");
         bitmapArray = new ArrayList<Bitmap>();
@@ -42,7 +43,8 @@ public class ImageLabelling extends Activity {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        cropBitMap();
+        getClassification();
+        // cropBitMap();
     }
 
     public void cropBitMap(){
@@ -55,9 +57,9 @@ public class ImageLabelling extends Activity {
 
     public void getClassification() {
         StringBuilder stringBuilder = new StringBuilder();
-        for(Bitmap bitmap1: bitmapArray){
+        //for(Bitmap bitmap1: bitmapArray){
             stringBuilder.append("A picture of ");
-            InputImage inputImage = InputImage.fromBitmap(bitmap1, 0);
+            InputImage inputImage = InputImage.fromBitmap(bitmap, 0);
             labeler.process(inputImage).addOnSuccessListener(imageLabels -> {
                 if (imageLabels.size() > 0) {
                     for (ImageLabel label : imageLabels) {
@@ -65,7 +67,8 @@ public class ImageLabelling extends Activity {
                     }
                 }
             }).addOnFailureListener(e -> e.printStackTrace());
-        }
+        //}
+        Log.i("MainActivity", "Text: " + stringBuilder.toString());
         Intent intent = new Intent(ImageLabelling.this, SpeakText.class);
         intent.putExtra("key", stringBuilder.toString());
         startActivity(intent);
