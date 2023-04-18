@@ -15,7 +15,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.provider.MediaStore;
 import android.util.Log;
-
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -45,15 +44,13 @@ public class ScreenshotService extends Service {
 
     private void createNotificationChannel() {
         Log.i("MainActivity", "Creating Notification Channel");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(
-                    "default",
-                    "Default Channel",
-                    NotificationManager.IMPORTANCE_DEFAULT);
-            channel.setDescription("Default channel for notifications");
-            NotificationManager manager = getSystemService(NotificationManager.class);
-            manager.createNotificationChannel(channel);
-        }
+        NotificationChannel channel = new NotificationChannel(
+                "default",
+                "Default Channel",
+                NotificationManager.IMPORTANCE_DEFAULT);
+        channel.setDescription("Default channel for notifications");
+        NotificationManager manager = getSystemService(NotificationManager.class);
+        manager.createNotificationChannel(channel);
     }
 
     @Override
@@ -93,14 +90,13 @@ public class ScreenshotService extends Service {
                 Log.i("MainActivity", "Sending Notification");
                 // Creating intent for notification to open ScreenshotRetriever
                 Log.i("MainActivity", "Creating Intent");
-                Intent intent = new Intent(getApplicationContext(), ScreenshotRetriever.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent,
+                Intent intent = new Intent(getApplicationContext(), MainService.class);
+                PendingIntent pendingIntent = PendingIntent.getService(getApplicationContext(), 0, intent,
                         PendingIntent.FLAG_IMMUTABLE);
                 NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "default")
                         .setSmallIcon(R.drawable.ic_launcher_background_notification)
                         .setContentTitle("Screenshot Detected")
-                        .setContentText("Tap to have it read out")
+                        .setContentText("Tap to get a description")
                         .setContentIntent(pendingIntent)
                         .setAutoCancel(true);
                 NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());

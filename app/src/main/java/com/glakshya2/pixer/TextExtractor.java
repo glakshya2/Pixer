@@ -1,50 +1,38 @@
 package com.glakshya2.pixer;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Intent;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.util.SparseArray;
-import android.widget.Toast;
-
 import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.text.TextBlock;
 import com.google.android.gms.vision.text.TextRecognizer;
-
 import java.io.IOException;
 
-public class TextExtractor extends Activity {
+public class TextExtractor {
 
-    private Uri uri;
+    private final Uri uri;
+    private final ContentResolver contentResolver;
+    private final Context context;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Log.i("TextExtractor", "New Text Extractor");
-        // Get Uri of screenshot from previous class
-        Log.i("TextExtractor", "Fetching Uri from ScreenshotRetriever's Intent");
-        uri = getIntent().getData();
+    TextExtractor(Uri uri, ContentResolver contentResolver, Context context) {
+        Log.i("MainActivity", "New Text Extractor");
+        this.uri = uri;
+        this.contentResolver = contentResolver;
+        this.context = context;
         getBitMap();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        // Closing TextExtractor Activity
-        Log.i("TextExtractor", "Closing TextExtractor Activity");
-        finish();
     }
 
     public void getBitMap() {
         // Try to create bitmap from screenshot
-        Log.i("TextExtractor", "Attempting to create bitmap");
+        Log.i("MainActivity", "Attempting to create bitmap");
         try {
-            Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
-            Log.i("TextExtractor", "Bitmap Created");
+            Bitmap bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri);
+            Log.i("MainActivity", "Bitmap Created");
             getTextFromImage(bitmap);
         } catch (IOException e) {
             e.printStackTrace();
@@ -54,15 +42,14 @@ public class TextExtractor extends Activity {
     @SuppressLint("SetTextI18n")
     private void getTextFromImage(Bitmap bitmap) {
         // Extracting text from bitmap
-        TextRecognizer recognizer = new TextRecognizer.Builder(this).build();
+        TextRecognizer recognizer = new TextRecognizer.Builder(context).build();
         // Check if text recognizer is active;
         if (!recognizer.isOperational()) {
             // Letting user know that there is an issue with TextRecognizer
-            Log.i("TextExtractor", "TextRecognizer is not active");
-            Toast.makeText(this, "Error!", Toast.LENGTH_SHORT).show();
+            Log.i("MainActivity", "TextRecognizer is not active");
         } else {
             // Beginning Text Extraction Process
-            Log.i("TextExtractor", "Beginning text Extraction");
+            Log.i("MainActivity", "Beginning text Extraction");
             Frame frame = new Frame.Builder().setBitmap(bitmap).build();
             SparseArray<TextBlock> sparseArray = recognizer.detect(frame);
             StringBuilder stringBuilder = new StringBuilder();
@@ -73,12 +60,8 @@ public class TextExtractor extends Activity {
                 stringBuilder.append("\n");
             }
             String text = stringBuilder.toString();
-            Log.i("TextExtractor", "Extracted Text: \n" + text);
-            // Creating intent to move program to SpeakText
-            Log.i("TextExtractor", "Creating intent to move to SpeakText");
-            Intent intent = new Intent(TextExtractor.this, SpeakText.class);
-            intent.putExtra("key", text);
-            startActivity(intent);
+            Log.i("MainActivity", "Extracted Text: \n" + text);
+            new SpeakText(context, text);
         }
     }
 }

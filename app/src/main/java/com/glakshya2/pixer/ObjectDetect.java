@@ -1,38 +1,38 @@
 package com.glakshya2.pixer;
 
-import android.app.Activity;
-import android.content.Intent;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.net.Uri;
-import android.os.Bundle;
-import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.util.Log;
-
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.objects.DetectedObject;
 import com.google.mlkit.vision.objects.ObjectDetection;
 import com.google.mlkit.vision.objects.ObjectDetector;
 import com.google.mlkit.vision.objects.defaults.ObjectDetectorOptions;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ObjectDetect extends Activity  {
+public class ObjectDetect {
 
-    private ObjectDetector objectDetector;
-    private Uri uri;
+    private final ObjectDetector objectDetector;
+    private final Uri uri;
+    private final ContentResolver contentResolver;
+    private final Context context;
 
-    @Override
-    protected void onCreate(Bundle savedInstance) {
-        Log.i("Main Activity", "New ObjectDetector");
-        super.onCreate(savedInstance);
+    ObjectDetect(Uri uri, ContentResolver contentResolver, Context context) {
+        Log.i("MainActivity", "New ObjectDetector");
+        this.uri = uri;
+        this.contentResolver = contentResolver;
+        this.context = context;
+        // Initialize ObjectDetect
+        Log.i("MainActivity", "Initializing ObjectDetect");
         ObjectDetectorOptions objectDetectorOptions = new ObjectDetectorOptions.Builder()
                 .setDetectorMode(ObjectDetectorOptions.SINGLE_IMAGE_MODE).enableMultipleObjects().build();
         objectDetector = ObjectDetection.getClient(objectDetectorOptions);
-        uri = getIntent().getData();
         getBitMap();
     }
 
@@ -40,7 +40,7 @@ public class ObjectDetect extends Activity  {
         // Try to create bitmap from screenshot
         Log.i("MainActivity", "Attempting to create bitmap");
         try {
-            Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
+            Bitmap bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri);
             Log.i("MainActivity", "Bitmap Created");
             detectImage(bitmap);
         } catch (IOException e) {
@@ -49,33 +49,22 @@ public class ObjectDetect extends Activity  {
     }
 
     public void detectImage(Bitmap bitmap) {
-        if(bitmap == null){
-            Log.i("MainActivity", "bitmap is null");
-        } else {
-            Log.i("MainActivity", "bitmap is not null");
-        }
+        // Use object detect to get bounding polygons for each object in the screenshot
+        // in the form of Rect
         InputImage inputImage = InputImage.fromBitmap(bitmap, 0);
-        if(inputImage == null){
-            Log.i("MainActivity", "image is null");
-        } else {
-            Log.i("MainActivity", "image is not null");
-        }
+        Log.i("MainActivity", "Detecting Objets");
         objectDetector.process(inputImage)
                 .addOnSuccessListener(
                         detectedObjects -> {
-                            StringBuilder stringBuilder = new StringBuilder();
-                            List<Rect> detectedRects = new ArrayList<Rect>();
+                            // Objects Detected, add detected Rect to ist to pass to CropAndConvert
+                            List<Rect> detectedRects = new ArrayList<>();
                             for (DetectedObject detected : detectedObjects) {
                                 detectedRects.add(detected.getBoundingBox());
                             }
-                            Intent intent = new Intent(ObjectDetect.this, CropAndConvert.class);
-                            intent.putParcelableArrayListExtra("RectList", (ArrayList<? extends Parcelable>) detectedRects);
-                            intent.setData(uri);
-                            startActivity(intent);
+                            new CropAndConvert(uri, detectedRects, contentResolver, context);
                         })
                 .addOnFailureListener(
-                        e -> e.printStackTrace());
+                        Throwable::printStackTrace);
     }
-
 
 }

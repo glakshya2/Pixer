@@ -30,19 +30,7 @@
 
 
         <service android:name=".ScreenshotService" />
-
-        <activity android:name=".ScreenshotRetriever"
-            android:parentActivityName=".ScreenshotService"/>
-        <activity android:name=".ObjectDetect"
-            android:parentActivityName=".ScreenshotRetriever"/>
-        <activity android:name=".ImageLabelling"
-            android:parentActivityName=".ObjectDetect"/>
-        <activity android:name=".TextExtractor"
-            android:parentActivityName=".ScreenshotRetriever"/>
-        <activity android:name=".CropAndConvert"
-            android:parentActivityName=".ObjectDetect"/>
-        <activity android:name=".SpeakText"
-            android:parentActivityName=".CropAndConvert"/>
+        <service android:name=".MainService" />
     </application>
 
     <queries>

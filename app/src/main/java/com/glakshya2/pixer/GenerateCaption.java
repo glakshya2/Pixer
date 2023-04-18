@@ -10,7 +10,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -24,37 +23,37 @@ public class GenerateCaption {
     private final OkHttpClient client = new OkHttpClient();
 
     public interface CaptionListener {
-
-        void onError(Throwable throwable);
         void onAllCaptionsGenerated(List<String> captions);
     }
 
     public void generateCaption(List<byte[]> imageList, CaptionListener listener) {
+        // Starting new thread
+        Log.i("MainActivity", "Starting new thread");
         ExecutorService executor = Executors.newSingleThreadExecutor();
-        Callable<List<String>> task = new Callable<List<String>>() {
-            @Override
-            public List<String> call() throws Exception {
-                List<String> captions = new ArrayList<>();
-                for (byte[] imageData : imageList) {
-                    try {
-                        MediaType mediaType = MediaType.parse("application/octet-stream");
-                        RequestBody body = RequestBody.create(mediaType, imageData);
-                        Request request = new Request.Builder()
-                                .url(API_URL)
-                                .post(body)
-                                .addHeader("Authorization", "Bearer " + API_TOKEN)
-                                .build();
-                        Log.i("MainActivity", "Sending request");
-                        Response response = client.newCall(request).execute();
-                        Log.i("MainActivity", "Response Received");
-                        String responseBody = response.body().string();
-                        captions.add(responseBody);
-                    } catch (IOException e) {
-                        throw e;
-                    }
+        Callable<List<String>> task = () -> {
+            List<String> captions = new ArrayList<>();
+            for (byte[] imageData : imageList) {
+                try {
+                    // Setting up request
+                    Log.i("MainActivity", "Setting up request");
+                    MediaType mediaType = MediaType.parse("application/octet-stream");
+                    RequestBody body = RequestBody.create(mediaType, imageData);
+                    Request request = new Request.Builder()
+                            .url(API_URL)
+                            .post(body)
+                            .addHeader("Authorization", "Bearer " + API_TOKEN)
+                            .build();
+                    // Sending Request
+                    Log.i("MainActivity", "Sending request");
+                    Response response = client.newCall(request).execute();
+                    Log.i("MainActivity", "Response Received");
+                    String responseBody = response.body().string();
+                    captions.add(responseBody);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-                return captions;
             }
+            return captions;
         };
         Future<List<String>> future = executor.submit(task);
         executor.shutdown();
@@ -62,7 +61,7 @@ public class GenerateCaption {
             List<String> captions = future.get();
             listener.onAllCaptionsGenerated(captions);
         } catch (ExecutionException | InterruptedException e) {
-            listener.onError(e);
+            e.printStackTrace();
         }
     }
 

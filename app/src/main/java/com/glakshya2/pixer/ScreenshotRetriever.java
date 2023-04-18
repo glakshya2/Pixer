@@ -1,49 +1,22 @@
 package com.glakshya2.pixer;
 
-import android.Manifest;
-import android.app.Activity;
-import android.content.Intent;
-import android.content.pm.PackageManager;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
-
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
 import java.io.File;
 
-public class ScreenshotRetriever extends Activity {
+public class ScreenshotRetriever {
 
-    private static final int READ_EXTERNAL_STORAGE_REQUEST_CODE = 123;
+    private final Context context;
+    private ContentResolver contentResolver;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    ScreenshotRetriever(Context context, ContentResolver contentResolver) {
         Log.i("MainActivity", "New ScreenshotRetriever");
-        checkPermission();
+        this.context = context;
+        this.contentResolver = contentResolver;
         retrieveScreenshot();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        // Close ScreenshotRetriever
-        Log.i("MainActivity", "Closing ScreenshotRetriever Activity");
-        finish();
-    }
-
-    public void checkPermission() {
-        // Check for reading storage permission
-        Log.i("MainActivity", "Check for storage read permission");
-        if (ContextCompat.checkSelfPermission(getApplicationContext(),
-                Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            // Request for permission to read storage
-            Log.i("MainActivity", "Request storage read permission");
-            ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.READ_EXTERNAL_STORAGE },
-                    READ_EXTERNAL_STORAGE_REQUEST_CODE);
-        }
     }
 
     public void retrieveScreenshot() {
@@ -64,10 +37,7 @@ public class ScreenshotRetriever extends Activity {
             }
         }
 
-        // Create intent to move to TextExtractor Class
-        Log.i("MainActivity", "Creating intent to move to TextExtractor");
-        Intent intent = new Intent(ScreenshotRetriever.this, ObjectDetect.class);
-        intent.setData(latestUri);
-        startActivity(intent);
+        // Pass to ObjectDetect
+        new ObjectDetect(latestUri, contentResolver, context);
     }
 }
