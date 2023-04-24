@@ -12,7 +12,7 @@ import androidx.core.content.ContextCompat;
 public class MainActivity extends AppCompatActivity {
 
     private Intent screenshotServiceIntent;
-    private static final int READ_EXTERNAL_STORAGE_REQUEST_CODE = 123;
+    private static final int READ_MEDIA_IMAGES_REQUEST_CODE = 123;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,11 +29,11 @@ public class MainActivity extends AppCompatActivity {
         // Check for reading storage permission
         Log.i("MainActivity", "Check for storage read permission");
         if (ContextCompat.checkSelfPermission(getApplicationContext(),
-                android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
             // Request for permission to read storage
             Log.i("MainActivity", "Request storage read permission");
-            ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.READ_EXTERNAL_STORAGE },
-                    READ_EXTERNAL_STORAGE_REQUEST_CODE);
+            ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.READ_MEDIA_IMAGES },
+                    READ_MEDIA_IMAGES_REQUEST_CODE);
         }
     }
 
