@@ -19,8 +19,13 @@ import okhttp3.Response;
 public class GenerateCaption {
 
     private final String API_URL = "https://api-inference.huggingface.co/models/nlpconnect/vit-gpt2-image-captioning";
-    private final String API_TOKEN = "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";
+    private final String API_TOKEN;
     private final OkHttpClient client = new OkHttpClient();
+
+    public GenerateCaption() {
+        APIKey key = new APIKey();
+        API_TOKEN = key.getAPIKey();
+    }
 
     public interface CaptionListener {
         void onAllCaptionsGenerated(List<String> captions);
